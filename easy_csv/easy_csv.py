@@ -220,14 +220,72 @@ def load(csvfile: io.TextIOWrapper, row_class: Type[U]) -> U: ...
 
 def load(csvfile: io.TextIOWrapper, row_class: Type[T] | Type[U]) -> list[T] | U:
     """
-    Load a CSV file given a defintion of its columns as a CSVLine or CSVColumns
+    Load a CSV file given a definition of its columns as a CSVLine or CSVColumns.
 
     Parameters
     ----------
     csvfile
-        TODO
+        A file handle to a text CSV file opened in read mode.
+
     row_class
-        TODO
+        The dataclass type defining the structure of the CSV file. This can be a
+        subclass of either `CSVLine` or `CSVColumns`.
+
+        - If a subclass of `CSVLine` is provided, the function returns a list of instances
+          of that class, with each instance representing a row in the CSV file.
+        - If a subclass of `CSVColumns` is provided, the function returns a single instance
+          of that class, where each attribute is a list containing the values of the respective
+          column in the CSV file.
+
+    Returns
+    -------
+    list[CSVLine] | CSVColumns
+        A list of instances of the provided `CSVLine` subclass or a single instance of the provided
+        `CSVColumns` subclass.
+
+    Raises
+    ------
+    ValueError
+        - If the CSV file does not have the expected columns as defined in the `row_class`.
+        - If the provided `row_class` is a subclass of `CSVColumns` and not all annotations are lists
+          as expected.
+
+    Example
+    -------
+    ```python
+    @dataclass
+    class Example(CSVLine):
+        filename: str
+        temp: int = csvfield(parser=int)
+
+    rows = [
+        Example(filename="file1.csv", temp=42),
+        Example(filename="file2.csv", temp=36)
+    ]
+
+    # Serialize to CSV
+    with open("example.csv", mode="w", newline="") as csvfile:
+        dump(csvfile, rows)
+
+    # Deserialize from CSV
+    with open("example.csv", mode="r", newline="") as csvfile:
+        loaded_rows = load(csvfile, Example)
+
+    print(loaded_rows)
+    # [Example(filename='file1.csv', temp=42), Example(filename='file2.csv', temp=36)]
+
+    @dataclass
+    class ExampleCols(CSVColumns):
+        filename: list[str] = csvfield(parser=str)
+        temp: list[int] = csvfield(parser=int)
+
+    # Deserialize as CSVColumns
+    with open("example.csv", mode="r", newline="") as csvfile:
+        loaded_cols = load(csvfile, ExampleCols)
+
+    print(loaded_cols)
+    # ExampleCols(filename=['file1.csv', 'file2.csv'], temp=[42, 36])
+    ```
     """
     expected_columns = [f.name for f in dc.fields(row_class)]
     reader = csv.DictReader(csvfile)
@@ -279,7 +337,6 @@ def dump(csvfile: io.TextIOWrapper, rows: list[T] | CSVColumns) -> None:
                 e_ = f"One of the rows is not of type {row_class}"
                 raise ValueError(e_)
             out_dict = row.serialized_dict()
-            print(out_dict)
             csvwriter.writerow(out_dict)
 
     elif isinstance(rows, CSVColumns):
