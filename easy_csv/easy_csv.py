@@ -39,6 +39,42 @@ def _check_if_is_generic_list(maybe_generic_list) -> bool:
 
 @dc.dataclass
 class CSVLine:
+    """
+    A base dataclass for representing a single line in a CSV file.
+
+    Attributes of the dataclass should correspond to columns in the CSV file.
+    Each attribute can have an optional parser function defined via the
+    `csvfield` function which will be applied to the corresponding columns
+    value upon initialization. If no parser is specified, the value will be
+    kept as a string.
+
+    Example
+    -------
+    ```python
+    import dataclasses as dc
+    from pathlib import Path
+    from easy_csv import CSVLine, csvfield, dump, load
+
+    @dc.dataclass
+    class Example(CSVLine):
+        filename: str
+        temp: int = csvfield(parser=int, serializer=lambda x: str(float(x)))
+
+    rows = [
+        Example(filename="file1.csv", temp=42),
+        Example(filename="file2.csv", temp=36)
+    ]
+
+    # Serialize to CSV
+    with Path("./example.csv").open(mode="w", newline="") as csvfile:
+        dump(csvfile, rows)
+
+    # Deserialize from CSV
+    with Path("./example.csv").open(mode="r", newline="") as csvfile:
+        loaded_rows = load(csvfile, Example)
+    ```
+    """
+
     def __post_init__(self):
         for field_ in dc.fields(self):
             field_name = field_.name
@@ -126,6 +162,43 @@ def csvfield(
     serializer: Callable[[Any], str] = lambda x: str(x),
     **kwargs,
 ) -> Any:
+    """
+    Additional configuration for annotations of CSVLine and CSVColumns.
+
+    This function works similarly to `dataclasses.field` but provides additional
+    parameters for parsing and serializing CSV data specific to `CSVLine` and `CSVColumns`.
+
+    Parameters
+    ----------
+    parser
+        A function that takes the output from the Python standard library `csv`
+        reader and post-processes it to match the expected type for the
+        corresponding class attribute.
+
+    serializer
+        A function that turns the value back into a string for dumping it into a
+        CSV text file. Defaults to `str`.
+
+    **kwargs
+    Additional keyword arguments passed directly to the underlying `dataclasses.field` call.
+
+    Returns
+    -------
+    A configured dataclass field with metadata for parsing and serializing.
+
+    Example
+    -------
+    ```python
+    @dataclass
+    class Example(CSVLine):
+        name: str
+        age: int = csvfield(parser=int, serializer=str)
+        score: float = csvfield(parser=float, serializer=lambda x: f"{x:.2f}")
+    ```
+    In this example, the `age` field will be parsed as an integer and
+    serialized as a string, while the `score` field will be parsed as a float
+    and serialized as a string with two decimal places.
+    """
     if "metadata" not in kwargs:
         metadata = {}
     else:
@@ -146,6 +219,16 @@ def load(csvfile: io.TextIOWrapper, row_class: Type[U]) -> U: ...
 
 
 def load(csvfile: io.TextIOWrapper, row_class: Type[T] | Type[U]) -> list[T] | U:
+    """
+    Load a CSV file given a defintion of its columns as a CSVLine or CSVColumns
+
+    Parameters
+    ----------
+    csvfile
+        TODO
+    row_class
+        TODO
+    """
     expected_columns = [f.name for f in dc.fields(row_class)]
     reader = csv.DictReader(csvfile)
 
