@@ -1,11 +1,9 @@
 import csv
 import dataclasses as dc
 import io
-import tempfile
 from typing import Any, Callable, Iterator, Type, TypeVar, overload
 
-# TODO: docstring for dump
-# TODO: Fix dumps
+# TODO: docstring for dumps
 # TODO: We need tests
 
 __all__ = ["CSVLine", "CSVColumns", "csvfield"]
@@ -324,10 +322,51 @@ def loads(csvfile: str, row_class: Type[U]) -> U: ...
 
 
 def loads(csvfile: str, row_class: Type[T] | Type[U]) -> list[T] | U:
+    """Load data from CSV formatted string.
+
+    See `load` for more details.
+    """
     return load(io.StringIO(csvfile), row_class)
 
 
 def dump(csvfile: io.TextIOWrapper, rows: list[T] | CSVColumns) -> None:
+    """
+    Serialize to CSV formatted file.
+
+    Parameters
+    ----------
+    dump
+        A file handle to a text file. It has to be opened using the `newline=""`
+        argument.
+    rows
+        The data to serialize. This can be a list of instances of a `CSVLine` subclass
+        or a single instance of a `CSVColumns` subclass.
+
+    Returns
+    -------
+        A string containing the CSV formatted data.
+
+    Example
+    -------
+    ```python
+    @dataclass
+    class Example(CSVLine):
+        filename: str
+        temp: int = csvfield(parser=int, serializer=lambda x: str(float(x)))
+
+    rows = [
+        Example(filename="file1.csv", temp=42),
+        Example(filename="file2.csv", temp=36)
+    ]
+
+    with Path("./example").open(mode="w", newline="") as csvfile:
+        dump(csvfile, rows)
+    # File ./example
+    # filename,temp
+    # file1.csv,42.0
+    # file2.csv,36.0
+    ```
+    """
     if isinstance(rows, list):
         row_class = type(rows[0])
 
