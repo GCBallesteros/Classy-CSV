@@ -6,7 +6,7 @@ from typing import Any, Callable, Iterator, Type, TypeVar, overload
 # TODO: docstring for dumps
 # TODO: We need tests
 
-__all__ = ["CSVLine", "CSVColumns", "csvfield"]
+__all__ = ["CSVLine", "CSVColumns", "csvfield", "load", "loads", "dump", "dumps"]
 
 
 def _check_all_annotations_are_list(row_class) -> bool:
