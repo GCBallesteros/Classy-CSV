@@ -1,9 +1,11 @@
 import csv
 import dataclasses as dc
 import io
+import tempfile
 from typing import Any, Callable, Iterator, Type, TypeVar, overload
 
-# TODO: We need docstrings
+# TODO: docstring for dump
+# TODO: Fix dumps
 # TODO: We need tests
 
 __all__ = ["CSVLine", "CSVColumns", "csvfield"]
@@ -348,9 +350,11 @@ def dump(csvfile: io.TextIOWrapper, rows: list[T] | CSVColumns) -> None:
             csvwriter.writerow(row)
 
 
-# TODO: This is silly
-def dumps(csvfile: str, rows: list[T] | CSVColumns) -> None:
-    return dump(io.StringIO(csvfile), rows)
+def dumps(rows: list[T] | CSVColumns) -> str:
+    csv_output = io.StringIO()
+    dump(csv_output, rows)
+
+    return csv_output.getvalue()
 
 
 if __name__ == "__main__":
