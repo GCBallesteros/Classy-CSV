@@ -1,9 +1,11 @@
 [tool.poetry]
 name = "classy-csv"
-version = "0.1.0"
+version = "0.1.1"
 description = "The easiest way to parse your CSV files"
 authors = ["GCBallesteros <dev+github@maxwellrules.com>"]
 readme = "README.md"
+license = "MIT"
+repository = "https://github.com/GCBallesteros/Classy-CSV"
 
 [tool.poetry.dependencies]
 python = "^3.9"
