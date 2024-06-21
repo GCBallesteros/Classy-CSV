@@ -39,7 +39,8 @@ Optional parsers and serializers can be defined for each attribute.
 - **CSVColumns:** A base dataclass for representing columns in a CSV file as
 lists. Each attribute of the dataclass corresponds to a column in the CSV file
 and must be a list. Optional parsers and serializers can be defined for each
-attribute.
+attribute. Loaded data using a column format based on this class will be
+returned in a _struct-of-arrays_ style.
 - **csvfield:** A helper function to add parser and serializer configurations
 to fields in `CSVLine` and `CSVColumns`. It works similarly to
 `dataclass.field` but provides additional parameters for parsing and
@@ -84,7 +85,6 @@ print(loaded_rows)
 #  CustomerData(name='Jane', age=42, height_m=1.65, weight_kg=58),
 #  CustomerData(name='Joe', age=36, height_m=1.75, weight_kg=75),
 # ]
-#
 ```
 
 More examples can be found under the `examples/` folder.
