@@ -1,8 +1,7 @@
 import dataclasses as dc
 import io
 
-import pytest
-from easy_csv import CSVColumns, CSVLine, csvfield, dump, dumps, load, loads
+from easy_csv import CSVColumns, CSVLine, csvfield, dump, dumps, loads
 
 
 @dc.dataclass
