@@ -1,13 +1,15 @@
 [tool.poetry]
 name = "easy-csv"
 version = "0.1.0"
-description = ""
+description = "The easiest way to parse your CSV files"
 authors = ["GCBallesteros <dev+github@maxwellrules.com>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.9"
 
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.2.2"
 
 [build-system]
 requires = ["poetry-core"]
