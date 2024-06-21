@@ -53,7 +53,7 @@ class CSVLine:
     ```python
     import dataclasses as dc
     from pathlib import Path
-    from easy_csv import CSVLine, csvfield, dump, load
+    from classy_csv import CSVLine, csvfield, dump, load
 
     @dc.dataclass
     class Example(CSVLine):

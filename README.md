@@ -1,9 +1,9 @@
-# EasyCSV
+# Classy CSV
 
-**EasyCSV is the easiest way to parse your CSV files; you are just one
+**Classy CSV is the easiest way to parse your CSV files; you are just one
 `dataclass` away from your data.**
 
-The main use case for EasyCSV is to serialize and deserialize tabular data
+The main use case for Classy CSV is to serialize and deserialize tabular data
 produced internally by applications you are in control of. By creating a
 dataclass that describes the structure of your CSV data, you can seamlessly
 convert between CSV files and Python objects.
@@ -14,24 +14,24 @@ depending on your data representation. See the API section for more details.
 ## Goals and Non-Goals
 
 ### Goals
-- **Ease of Use:** The primary goal of EasyCSV is to provide a simple and
+- **Ease of Use:** The primary goal of Classy CSV is to provide a simple and
 intuitive way to parse and serialize CSV files using Python's built-in
 `dataclass` mechanism.
-- **Type Safety and Compatibility:** EasyCSV is designed to play nicely with
+- **Type Safety and Compatibility:** Classy CSV is designed to play nicely with
 type hints, linters, and language server protocols such as pyright and mypy.
 This ensures that the code you write is type-safe and can be checked with
 standard Python tooling.
 - **Zero Dependencies:** Zero worries about dependency issues.
 
 ### Non-Goals
-- **Performance:** EasyCSV is not optimized for high performance. It is
+- **Performance:** Classy CSV is not optimized for high performance. It is
 intended to be used with small CSV files.
-- **Error Handling:** EasyCSV is not designed to deal gracefully with malformed
+- **Error Handling:** Classy CSV is not designed to deal gracefully with malformed
 CSV files. It assumes that the input CSV files are well-formed.
 
 ## API
 
-EasyCSV exposes the following functions:
+Classy CSV exposes the following functions:
 
 - **CSVLine:** A base dataclass for representing a single line in a CSV file.
 Each attribute of the dataclass corresponds to a column in the CSV file.
@@ -59,7 +59,7 @@ representations.
 ```python
 from pathlib import Path
 import dataclasses as dc
-from easy_csv import CSVLine, CSVColumns, csvfield, dump, load, loads, dumps
+from classy_csv import CSVLine, CSVColumns, csvfield, dump, load, loads, dumps
 
 @dc.dataclass
 class CustomerData(CSVLine):

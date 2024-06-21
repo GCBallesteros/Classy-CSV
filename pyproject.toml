@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "easy-csv"
+name = "classy-csv"
 version = "0.1.0"
 description = "The easiest way to parse your CSV files"
 authors = ["GCBallesteros <dev+github@maxwellrules.com>"]

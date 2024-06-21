@@ -1,6 +1,6 @@
 from pathlib import Path
 import dataclasses as dc
-from easy_csv import CSVLine, CSVColumns, csvfield, dump, load, loads, dumps
+from classy_csv import CSVLine, CSVColumns, csvfield, dump, load, loads, dumps
 
 
 # Example 1: CSVLine

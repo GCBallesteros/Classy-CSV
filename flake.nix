@@ -1,5 +1,5 @@
 {
-  description = "EasyCSV the easiest way to parse CSV";
+  description = "ClassyCSV the easiest way to parse CSV";
 
   inputs = {
     flake-utils.url = "github:numtide/flake-utils";
@@ -17,7 +17,7 @@
         inherit (poetry2nix.lib.mkPoetry2Nix { inherit pkgs; }) mkPoetryEnv;
         env = mkPoetryEnv {
           projectDir = ./.;
-          editablePackageSources = { easy-csv = ./easy_csv; };
+          editablePackageSources = { classy-csv = ./classy_csv; };
           preferWheels = true;
           python = pkgs.python310;
         };

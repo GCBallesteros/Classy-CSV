@@ -1,7 +1,7 @@
 import dataclasses as dc
 import io
 
-from easy_csv import CSVColumns, CSVLine, csvfield, dump, dumps, loads
+from classy_csv import CSVColumns, CSVLine, csvfield, dump, dumps, loads
 
 
 @dc.dataclass
