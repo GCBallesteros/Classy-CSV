@@ -29,6 +29,17 @@ intended to be used with small CSV files.
 - **Error Handling:** Classy CSV is not designed to deal gracefully with malformed
 CSV files. It assumes that the input CSV files are well-formed.
 
+## Installation
+
+You can install Class CSV using pip:
+
+```
+pip install classy-csv
+```
+
+, alternatively you can just copy  `classy_csv/classy_csv.py` into your project
+and start using it now!
+
 ## API
 
 Classy CSV exposes the following functions:
