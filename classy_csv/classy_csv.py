@@ -468,31 +468,3 @@ def dumps(rows: list[T] | CSVColumns) -> str:
     dump(csv_output, rows)
 
     return csv_output.getvalue()
-
-
-if __name__ == "__main__":
-    from pathlib import Path
-
-    @dc.dataclass
-    class Example(CSVLine):
-        filename: str
-        temp: int = csvfield(parser=int, serializer=lambda x: str(float(x)))
-
-    @dc.dataclass
-    class ExampleCol(CSVColumns):
-        filename: list[str] = csvfield(parser=str)
-        temp: list[float] = csvfield(parser=float, serializer=lambda x: str(float(x)))
-
-    rows = [
-        Example(filename="asdf", temp=6),
-        Example(filename="ssdf", temp=5),
-        Example(filename="dsdf", temp=4),
-        Example(filename="fsdf", temp=3),
-    ]
-    with Path("./example").open(mode="w", newline="") as csvfile:
-        dump(csvfile, rows)
-    with Path("./example").open(mode="r", newline="") as csvfile:
-        asF = load(csvfile, ExampleCol)
-        print(asF)
-    with Path("./example2").open(mode="w", newline="") as csvfile:
-        dump(csvfile, asF)
