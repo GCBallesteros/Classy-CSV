@@ -1,4 +1,9 @@
-"""Classy CSV: The classiest way to (de)serialize your CSV data."""
+"""Classy CSV: The classiest way to (de)serialize your CSV data.
+
+Author: Guilllem Ballesteros
+
+Released under the MIT License
+"""
 
 import csv
 import dataclasses as dc
