@@ -16,3 +16,86 @@ pytest = "^8.2.2"
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.ruff.lint]
+select = [
+  "E",
+  "F",
+  "A",     # flake8-builtins
+  "DTZ",   # flake8-datetimez
+  "NPY",   # Numpy
+  "I",     # isort
+  "ISC",   # flake8-implicit-str-concat
+  "B003",  # flake8-bugbear: assignment-to-os-environ
+  "B004",  # flake8-bugbear: unreliable-callable-check
+  "B015",  # flake8-bugbear: useless-comparison
+  "PTH",   # flake8-use-pathlib
+  "D100",  # pydocstyle: undocumented-public-module
+  "D101",  # pydocstyle: undocumented-public-class
+  "D102",  # pydocstyle: undocumented-public-method
+  "D103",  # pydocstyle: undocumented-public-function
+  "D104",  # pydocstyle: undocumented-public-package
+  "D105",  # pydocstyle: undocumented-magic-method
+  "D200",  # pydocstyle: fits-on-one-line
+  "W191",  # tab-indentation
+  "W291",  # warning: trailing-whitespace
+  "W293",  # warning: blank-line-with-whitespace
+  "N801",  # pep8-naming: Invalid class name
+  "N804",  # pep8-naming: invalid-first-argument-name-for-class-method
+  "N805",  # pep8-naming: invalid-first-argument-name-for-method
+  "T100",  # bugbear: debug
+  "S105",  # bandit: hardcoded-password-string
+  "S106",  # bandit: hardcoded-password-func-arg
+  "S108",  # bandit: hardcoded-temp-file
+  "S604",  # bandit: call-with-shell-equals-true
+  "S602",  # bandit: subprocess-popen-with-shell-equals-true
+  "S609",  # bandit: unix-command-wildcard-injection
+  "UP003", # pyupgrade: type-of-primitive
+  "UP005", # pyupgrade: deprecated-unittest-alias
+  "UP006", # pyupgrade: non-pep585-annotation
+  "UP007", # pyupgrade: non-pep604-annotation
+  "UP008", # pyupgrade: super-call-with-parameters
+  "UP032", # pyupgrade: f-string
+  "UP035", # pyupgrade: deprecated-import
+  "RUF001", # Ruff-specific rules: ambiguous-unicode-character-string
+  "RUF200", # Ruff-specific rules: invalid-pyproject-toml
+  "RUF013", # Ruff-specific rules: implicit-optional
+  "C901",  # mccabe: complex-structure
+  "COM818",  # flake8-commas: trailing-comma-on-bare-tuple
+  "RSE102",  # flake8-raise: unnecessary-paren-on-raise-exception
+  "EM101",  # flake8-errmsg: raw-string-in-exception
+]
+
+# Exclude a variety of commonly ignored directories.
+exclude = [
+    ".direnv",
+    ".eggs",
+    ".git",
+    ".mypy_cache",
+    ".nox",
+    ".pytype",
+    ".ruff_cache",
+    ".tox",
+    ".venv",
+    "__pypackages__",
+    "_build",
+    "build",
+    "dist",
+    "venv",
+    "__pycache__",
+]
+
+[tool.ruff]
+# Assume Python 3.10.
+target-version = "py310"
+line-length = 88
+
+# Allow unused variables when underscore-prefixed.
+dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+
+
+[tool.ruff.lint.mccabe]
+max-complexity = 10
+
+[tool.ruff.lint.pydocstyle]
+convention = "numpy"

@@ -1,10 +1,10 @@
+"""Classy CSV: The classiest way to (de)serialize your CSV data."""
+
 import csv
 import dataclasses as dc
 import io
-from typing import Any, Callable, Iterator, Type, TypeVar, overload
-
-# TODO: docstring for dumps
-# TODO: We need tests
+from collections.abc import Callable, Iterator
+from typing import Any, TypeVar, overload
 
 __all__ = ["CSVLine", "CSVColumns", "csvfield", "load", "loads", "dump", "dumps"]
 
@@ -76,6 +76,7 @@ class CSVLine:
     """
 
     def __post_init__(self):
+        """Perform additional parsing and runtime type checks."""
         for field_ in dc.fields(self):
             field_name = field_.name
             if "_parser" in field_.metadata:
@@ -86,10 +87,11 @@ class CSVLine:
             setattr(self, field_name, parser(getattr(self, field_name)))
 
             if not isinstance(getattr(self, field_name), field_.type):
-                e_ = f"Parsed value for {field_name} didn't match the expected type {field_.type}"
+                e_ = f"Parsed value for {field_name} didn't match the expected type {field_.type}"  # noqa: E501
                 raise ValueError(e_)
 
     def serialized_dict(self) -> dict[str, str]:
+        """Turn the data into a dict where all fields are values are strings."""
         fields = dc.fields(self)
         serializers = {}
         for f in fields:
@@ -104,7 +106,51 @@ class CSVLine:
 
 @dc.dataclass
 class CSVColumns:
+    """
+    A base dataclass for representing a CSV as a struct of arrays.
+
+    While `CSVLine` represents a single line, `CSVColumn` represents all the
+    data stored in the CSV using a list per column. To achieve it you just need
+    to load the data passing a subclass of `CSVColumns`.
+
+    Attributes of the dataclass should correspond to columns in the CSV file.
+    Each attribute can have an optional parser function defined via the
+    `csvfield` function which will be applied to the corresponding columns
+    value upon initialization. If no parser is specified, the value will be
+    kept as a string.
+
+    Note
+    ----
+    All attributes of a `CSVColumns` subclass must be `list` enclosing the
+    actual type of the column. If this is not the case a runtime error will be
+    raised.
+
+    Example
+    -------
+    ```python
+    import dataclasses as dc
+    from pathlib import Path
+    from classy_csv import CSVColumns, csvfield, dump, load
+
+    @dc.dataclass
+    class Example(CSVColumns):
+        filename: list[str]
+        temp: list[int] = csvfield(parser=int, serializer=lambda x: str(float(x)))
+
+    rows = CSVColumns(filename=["file1.csv", "file2.csv"], temp=[42, 36])
+
+    # Serialize to CSV
+    with Path("./example.csv").open(mode="w", newline="") as csvfile:
+        dump(csvfile, rows)
+
+    # Deserialize from CSV
+    with Path("./example.csv").open(mode="r", newline="") as csvfile:
+        loaded_rows = load(csvfile, Example)
+    ```
+    """
+
     def __post_init__(self):
+        """Perform additional parsing and runtime type checks."""
         for field_ in dc.fields(self):
             field_name = field_.name
             if "_parser" in field_.metadata:
@@ -115,16 +161,24 @@ class CSVColumns:
             if _check_if_is_generic_list(field_.type):
                 inner_type = _unwrap_list(field_.type)
             else:
-                raise ValueError("Value should be list")
+                e_ = "Value should be list"
+                raise ValueError(e_)
 
             setattr(self, field_name, [parser(x) for x in getattr(self, field_name)])
 
             for x in getattr(self, field_name):
                 if not isinstance(x, inner_type):
-                    e_ = f"Parsed value for {field_name} didn't match the expected type {inner_type}"
+                    e_ = f"Parsed value for {field_name} didn't match the expected type {inner_type}"  # noqa: E501
                     raise ValueError(e_)
 
     def __iter__(self) -> Iterator[dict[str, Any]]:
+        """Iterate over all the rows in the data.
+
+        Yields
+        ------
+        A dictionary with keys being the name of the associated attribute and values
+        of the type inside the wrapping list.
+        """
         fields = dc.fields(self)
 
         some_attr = fields[0].name
@@ -134,6 +188,13 @@ class CSVColumns:
             yield {f.name: getattr(self, f.name)[i] for f in fields}
 
     def serializer_iterator(self) -> Iterator[dict[str, str]]:
+        """Iterate over all the rows in the data.
+
+        Yields
+        ------
+        A dictionary with keys being the name of the associated attribute and
+        serialized into string values ready to be dumped into a text file. """
+
         fields = dc.fields(self)
 
         serializers = {}
@@ -165,8 +226,9 @@ def csvfield(
     """
     Additional configuration for annotations of CSVLine and CSVColumns.
 
-    This function works similarly to `dataclasses.field` but provides additional
-    parameters for parsing and serializing CSV data specific to `CSVLine` and `CSVColumns`.
+    This function works similarly to `dataclasses.field` but provides
+    additional parameters for parsing and serializing CSV data specific to
+    `CSVLine` and `CSVColumns`.
 
     Parameters
     ----------
@@ -180,7 +242,8 @@ def csvfield(
         CSV text file. Defaults to `str`.
 
     **kwargs
-    Additional keyword arguments passed directly to the underlying `dataclasses.field` call.
+        Additional keyword arguments passed directly to the underlying
+        `dataclasses.field` call.
 
     Returns
     -------
@@ -211,14 +274,14 @@ def csvfield(
 
 
 @overload
-def load(csvfile: io.TextIOWrapper, row_class: Type[T]) -> list[T]: ...
+def load(csvfile: io.TextIOWrapper, row_class: type[T]) -> list[T]: ...
 
 
 @overload
-def load(csvfile: io.TextIOWrapper, row_class: Type[U]) -> U: ...
+def load(csvfile: io.TextIOWrapper, row_class: type[U]) -> U: ...
 
 
-def load(csvfile: io.TextIOWrapper, row_class: Type[T] | Type[U]) -> list[T] | U:
+def load(csvfile: io.TextIOWrapper, row_class: type[T] | type[U]) -> list[T] | U:
     """
     Load a CSV file given a definition of its columns as a CSVLine or CSVColumns.
 
@@ -231,24 +294,26 @@ def load(csvfile: io.TextIOWrapper, row_class: Type[T] | Type[U]) -> list[T] | U
         The dataclass type defining the structure of the CSV file. This can be a
         subclass of either `CSVLine` or `CSVColumns`.
 
-        - If a subclass of `CSVLine` is provided, the function returns a list of instances
-          of that class, with each instance representing a row in the CSV file.
-        - If a subclass of `CSVColumns` is provided, the function returns a single instance
-          of that class, where each attribute is a list containing the values of the respective
-          column in the CSV file.
+        - If a subclass of `CSVLine` is provided, the function returns a list
+          of instances of that class, with each instance representing a row in
+          the CSV file.
+        - If a subclass of `CSVColumns` is provided, the function returns a
+          single instance of that class, where each attribute is a list
+          containing the values of the respective column in the CSV file.
 
     Returns
     -------
     list[CSVLine] | CSVColumns
-        A list of instances of the provided `CSVLine` subclass or a single instance of the provided
-        `CSVColumns` subclass.
+        A list of instances of the provided `CSVLine` subclass or a single
+        instance of the provided `CSVColumns` subclass.
 
     Raises
     ------
     ValueError
-        - If the CSV file does not have the expected columns as defined in the `row_class`.
-        - If the provided `row_class` is a subclass of `CSVColumns` and not all annotations are lists
-          as expected.
+        - If the CSV file does not have the expected columns as defined in the
+          `row_class`.
+        - If the provided `row_class` is a subclass of `CSVColumns` and not all
+          annotations are lists as expected.
 
     Example
     -------
@@ -314,14 +379,14 @@ def load(csvfile: io.TextIOWrapper, row_class: Type[T] | Type[U]) -> list[T] | U
 
 
 @overload
-def loads(csvfile: str, row_class: Type[T]) -> list[T]: ...
+def loads(csvfile: str, row_class: type[T]) -> list[T]: ...
 
 
 @overload
-def loads(csvfile: str, row_class: Type[U]) -> U: ...
+def loads(csvfile: str, row_class: type[U]) -> U: ...
 
 
-def loads(csvfile: str, row_class: Type[T] | Type[U]) -> list[T] | U:
+def loads(csvfile: str, row_class: type[T] | type[U]) -> list[T] | U:
     """Load data from CSV formatted string.
 
     See `load` for more details.
@@ -390,6 +455,10 @@ def dump(csvfile: io.TextIOWrapper, rows: list[T] | CSVColumns) -> None:
 
 
 def dumps(rows: list[T] | CSVColumns) -> str:
+    """Dump CSV data into a a string.
+
+    For more details see: `dump`
+    """
     csv_output = io.StringIO()
     dump(csv_output, rows)
 
